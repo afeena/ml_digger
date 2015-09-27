@@ -1,10 +1,11 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "level.h"
 
 
 class Chromosome;
-class Level;
+
 
 class Digger{
 
