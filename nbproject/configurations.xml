@@ -7,6 +7,7 @@
       <itemPath>chromosome.h</itemPath>
       <itemPath>level.h</itemPath>
       <itemPath>ml_digger.h</itemPath>
+      <itemPath>types.h</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -57,6 +58,8 @@
       </item>
       <item path="ml_digger.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="types.h" ex="false" tool="3" flavor2="0">
+      </item>
     </conf>
     <conf name="Release" type="1">
       <toolsSet>
@@ -91,6 +94,8 @@
       <item path="ml_digger.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="ml_digger.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="types.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>
