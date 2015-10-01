@@ -1,9 +1,11 @@
 #pragma once
 #include <vector>
+#include <random>
 #include "types.h"
 
 class Chromosome {
 public:
+	Chromosome();
 	void mutate();
 	path_t get_path();
 	void set_score(int score);
@@ -16,7 +18,7 @@ public:
 private:
 	int score;
 	path_t path;
+	static std::mt19937 random_gen;
 
-	Chromosome();
 };
 
