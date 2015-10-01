@@ -25,6 +25,7 @@ private:
 
 	void read_map();
 	void find_path_score(population_t &population);
+	bool is_done(population_t population);
 	
 	population_t generate_random_population(int size);
 	population_t generate_next_population(population_t population);

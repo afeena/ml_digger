@@ -32,11 +32,13 @@ void Digger::read_map() {
 
 path_t Digger::find_path() {
 	population_t population = this->generate_random_population(15);
-	find_path_score(population);
-	print(population);
+	this->find_path_score(population);
+	while (!this->is_done(population)) {
+		population = generate_next_population(population);
+		this->find_path_score(population);
 
-	//	TODO: dummy
-	this->round_wheel_selection(population);
+	}
+	print(population);
 }
 
 population_t Digger::generate_random_population(int size) {
@@ -151,9 +153,36 @@ std::vector<chromosome_pair_t> Digger::round_wheel_selection(population_t popula
 }
 
 population_t Digger::generate_next_population(population_t population) {
-	//	std::deque<Chromosome> mating_pool = make_selection();
-	//	std::random_shuffle(mating_pool.begin(), mating_pool.end(), random_gen);
+	
+	std::vector<chromosome_pair_t> parents_pool = round_wheel_selection(population);
+	population_t population_children;
+	for (int i = 0; i < parents_pool.size(); i++) {
+		chromosome_pair_t children = Chromosome::make_cross(parents_pool[i]);
+		population_children.push_back(children.first);
+		population_children.push_back(children.second);
+	}
 
+	for (int i = 0; i < population_children.size(); i++) {
+		int rand = random_gen() % 100;
+		if (rand < 2) {
+			population_children[i].mutate();
+		}
+	}
+
+	population_t new_population(population_children.begin(), population_children.begin() + 15);
+	return new_population;
+}
+
+bool Digger::is_done(population_t population) {
+	bool done = false;
+	int done_score = 16;
+
+	for (int i = 0; i < population.size(); i++) {
+		int current_score = std::floor(population[i].get_score() / 100);
+		if (current_score == done_score)
+			done = true;
+	}
+	return done;
 }
 
 void Digger::print(population_t population) {
