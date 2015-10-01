@@ -19,12 +19,13 @@ private:
 	int levels_count;
 	std::string map_filename;
 	std::vector<Level> map;
+	static std::mt19937 random_gen;
 
 	void read_map();
 	void find_path_score(population_t population);
 	
 	population_t generate_random_population(int size);
-	population_t generate_next_population();
-	std::vector<chromosome_pair_t> make_selection();
+	population_t generate_next_population(std::deque<Chromosome> pool);
+	std::deque<Chromosome> make_selection(population_t population);
 
 };

@@ -25,24 +25,16 @@ Chromosome Chromosome::make_random(int bound, int path_length) {
 		else
 			chromosome.path.push_back({DIG_LEFT, step_count});
 	}
-	chromosome.score.first = 0;
-	chromosome.score.second = 0;
-
-//	for (auto element : chromosome.path) {
-//			std::cout << element.first<<" ";
-//			std::cout << element.second<<" ";
-//	}
-//	std::cout<<std::endl;
+	chromosome.score = 0;
 
 	return chromosome;
 }
 
-void Chromosome::set_score(std::pair<int,int> score) {
-	this->score.first = score.first;
-	this->score.second = score.second;
+void Chromosome::set_score(int score) {
+	this->score = score;
 }
 
-std::pair<int,int> Chromosome::get_score() {
+int Chromosome::get_score() {
 	return this->score;
 }
 
