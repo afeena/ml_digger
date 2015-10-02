@@ -14,10 +14,12 @@ Level::Level(std::string gate, std::string room) {
 				break;
 		}
 	}
-	if (room == "") {
-		for (int i = 0; i < Config::PATH_LEN; i++)
+
+	if (room.empty()) {
+		for (int i = 0; i < gate.size(); i++)
 			this->room.push_back(EMPTY);
 	}
+
 	for (int i = 0; i < room.length(); i++) {
 		switch (room[i]) {
 			case '-':

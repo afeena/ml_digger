@@ -1,22 +1,28 @@
 #include "chromosome.h"
 
+#include "types.h"
+
 #include <random>
 #include <iostream>
-#include <ctime>
 
-std::mt19937 Chromosome::random_gen = std::mt19937(time(nullptr));
+extern std::mt19937 random;
 
 Chromosome::Chromosome() : score(0) {
 }
 
-Chromosome Chromosome::make_random(int bound, int path_length) {
+Chromosome Chromosome::make_random(int path_length, int path_width) {
 	Chromosome chromosome;
-	std::uniform_int_distribution<int> step_count_dist(0, bound - 1);
-	std::uniform_int_distribution<int> direction_dist(0, 1);
+	
+	chromosome.path_width = path_width;
+	chromosome.path.reserve(path_length);
+	chromosome.score = 0;
 
+	std::uniform_int_distribution<int> step_count_dist(0, path_width);
+	std::uniform_int_distribution<int> direction_dist(0, 1);
+	
 	for (int i = 0; i < path_length; i++) {
-		int step_count = step_count_dist(random_gen);
-		int direction = direction_dist(random_gen);
+		int step_count = step_count_dist(random);
+		int direction = direction_dist(random);
 
 		if (direction > 0)
 			chromosome.path.push_back({DIG_RIGHT, step_count});
@@ -24,21 +30,24 @@ Chromosome Chromosome::make_random(int bound, int path_length) {
 			chromosome.path.push_back({DIG_LEFT, step_count});
 	}
 
-	chromosome.score = 0;
-
 	return chromosome;
 }
 
 chromosome_pair_t Chromosome::make_crossover(const chromosome_pair_t &parents) {
+	int rand = random()%100;
+	
+	if (rand <=30)
+		return parents;
+	
 	int path_len = parents.first.path.size();
 
 	chromosome_pair_t childs = parents;
 	std::pair<int, int> cross_points;
 	std::uniform_int_distribution<int> cut_point_dist(0, path_len - 1);
 
-	cross_points.first = cut_point_dist(random_gen);
+	cross_points.first = cut_point_dist(random);
 	do {
-		cross_points.second = cut_point_dist(random_gen);
+		cross_points.second = cut_point_dist(random);
 	} while (cross_points.second == cross_points.first);
 
 	if (cross_points.first > cross_points.second)
@@ -56,13 +65,13 @@ chromosome_pair_t Chromosome::make_crossover(const chromosome_pair_t &parents) {
 
 void Chromosome::mutate() {
 	std::uniform_int_distribution<int> mutation_dist(0, this->path.size() - 1);
-	std::uniform_int_distribution<int> step_count_dist(0, Config::PATH_LEN);
+	std::uniform_int_distribution<int> step_count_dist(0, this->path_width);
 	std::uniform_int_distribution<int> direction_dist(0, 1);
 
 	for (int i = 0; i < Config::MUTATE_SIZE; i++) {
-		int mutate_point = mutation_dist(random_gen);
-		int step_count = step_count_dist(random_gen);
-		int direction = direction_dist(random_gen);
+		int mutate_point = mutation_dist(random);
+		int step_count = step_count_dist(random);
+		int direction = direction_dist(random);
 
 		if (direction > 0)
 			this->path[mutate_point] = {DIG_RIGHT, step_count};

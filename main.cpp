@@ -1,12 +1,18 @@
 #include "config.h"
 #include "ml_digger.h"
 
+#include <ctime>
 #include <iostream>
 #include <string>
+#include <random>
 
-const int Config::POPULATION_SIZE = 15;
-const int Config::PATH_LEN = 16;
-const int Config::MUTATE_SIZE = 1;
+const int Config::POPULATION_SIZE = 16;
+const int Config::MUTATE_SIZE = 3;
+const int Config::MUTATE_RATE = 4;
+const int Config::ITERS_FOR_MUTATION = 1000;
+const int Config::ROOM_BORDER_SIZE = 3;
+
+std::mt19937 random(time(nullptr));
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {

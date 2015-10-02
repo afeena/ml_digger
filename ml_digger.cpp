@@ -5,16 +5,13 @@
 
 #include <algorithm>
 #include <cassert>
-#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <set>
 
-std::mt19937 Digger::random_gen = std::mt19937(time(nullptr));
-int Digger::top_score = 0;
-int Digger::iterate_count = 0;
+extern std::mt19937 random;
 
-Digger::Digger(std::string filename) : map_bound_x(0), levels_count(0), map_filename(filename) {
+Digger::Digger(std::string filename) : map_filename(filename), top_score(0), iterate_count(0) {
 	this->read_map();
 }
 
@@ -31,12 +28,10 @@ void Digger::read_map() {
 
 		this->map.emplace_back(gate, room);
 	}
-
-	this->levels_count = this->map.size();
 }
 
 void Digger::find_path() {
-	population_t population = this->generate_random_population(Config::POPULATION_SIZE);
+	population_t population = this->generate_random_population();
 	this->calculate_path_score(population);
 	std::pair<bool, int> done = {false, 0};
 
@@ -51,11 +46,14 @@ void Digger::find_path() {
 	//	TODO: return path
 }
 
-population_t Digger::generate_random_population(int size) {
+population_t Digger::generate_random_population() {
 	population_t population;
 
-	for (int i = 0; i < size; i++) {
-		Chromosome chromosome = Chromosome::make_random(Config::POPULATION_SIZE, Config::PATH_LEN);
+	int path_len = this->map.size();
+	int path_width = this->map.front().get_room().size() - Config::ROOM_BORDER_SIZE;
+
+	for (int i = 0; i < Config::POPULATION_SIZE; i++) {
+		Chromosome chromosome = Chromosome::make_random(path_len, path_width);
 		population.push_back(chromosome);
 	}
 
@@ -63,11 +61,11 @@ population_t Digger::generate_random_population(int size) {
 }
 
 void Digger::calculate_path_score(population_t &population) {
-	iterate_count++;
+	int path_width = this->map.front().get_room().size() - Config::ROOM_BORDER_SIZE;
 
 	for (int i = 0; i < population.size(); i++) {
 		auto path = population[i].get_path();
-		int current_position = this->map[0].get_gates()[0];
+		int current_position = this->map.front().get_gates().front();
 		int score = 0;
 
 		for (int j = 0; j < this->map.size(); j++) {
@@ -81,12 +79,12 @@ void Digger::calculate_path_score(population_t &population) {
 
 			int possible_steps = this->map[j].countup_possible_steps(current_position, direction, step_count);
 
-			score |= 0xFFFF & (15 - possible_steps);
+			score |= 0xFFFF & (path_width - possible_steps);
 
-			if (score > top_score) {
-				std::cout << "lvl: " << (score >> 16) << ", step: " << (score & 0xFFFF) << std::endl;
-				top_score = score;
-				iterate_count = 0;
+			if (score > this->top_score) {
+				std::cout << "level: " << (score >> 16) << ", step: " << (score & 0xFFFF) << std::endl;
+				this->top_score = score;
+				this->iterate_count = 0;
 			}
 
 			if (possible_steps != step_count)
@@ -97,6 +95,8 @@ void Digger::calculate_path_score(population_t &population) {
 
 		population[i].set_score(score);
 	}
+
+	this->iterate_count++;
 }
 
 std::vector<chromosome_pair_t> Digger::round_wheel_selection(const population_t &population) const {
@@ -126,7 +126,7 @@ std::vector<chromosome_pair_t> Digger::round_wheel_selection(const population_t 
 	for (int i = 0; i < population.size(); i += 2) {
 		double dice;
 
-		dice = base_dist(random_gen);
+		dice = base_dist(random);
 		auto first_bound = intervals.upper_bound(dice);
 		int first_parent = std::distance(intervals.begin(), first_bound) - 1;
 
@@ -135,7 +135,7 @@ std::vector<chromosome_pair_t> Digger::round_wheel_selection(const population_t 
 		std::piecewise_constant_distribution<double>
 			cutted_dist(intervals.begin(), intervals.end(), cutted_weights.begin());
 
-		dice = cutted_dist(random_gen);
+		dice = cutted_dist(random);
 		auto second_bound = intervals.upper_bound(dice);
 		int second_parent = std::distance(intervals.begin(), second_bound) - 1;
 
@@ -145,9 +145,8 @@ std::vector<chromosome_pair_t> Digger::round_wheel_selection(const population_t 
 	return selected_parents;
 }
 
-population_t Digger::generate_next_population(const population_t & population) const {
+population_t Digger::generate_next_population(const population_t &population) {
 	std::vector<chromosome_pair_t> parents = round_wheel_selection(population);
-	//std::vector<chromosome_pair_t> parents = tournament_selection(population);
 	population_t population_children;
 
 	for (int i = 0; i < parents.size(); i++) {
@@ -156,26 +155,25 @@ population_t Digger::generate_next_population(const population_t & population) c
 		population_children.push_back(children.second);
 	}
 
-	if (iterate_count > 500) {
+	if (this->iterate_count > Config::ITERS_FOR_MUTATION) {
 		for (int i = 0; i < population_children.size(); i++) {
-			int rand = random_gen() % 100;
+			int rand = random() % 100;
 
-			if (rand >= 4)
+			if (rand >= Config::MUTATE_RATE)
 				continue;
 
 			population_children[i].mutate();
 		}
-		
-		//top_score = 0;
-		iterate_count = 0;
+
+		//		this->iterate_count = 0;
+		//		this->top_score = 0;
 	}
 
 	return {population_children.begin(), population_children.begin() + Config::POPULATION_SIZE};
 }
 
-std::pair<bool, int> Digger::is_done(const population_t & population) const {
-	int done_score = 15;
-	int done_ind = 0;
+std::pair<bool, int> Digger::is_done(const population_t &population) const {
+	int done_score = this->map.size() - 1;
 
 	for (int i = 0; i < population.size(); i++) {
 		int current_score = population[i].get_score() >> 16;
@@ -183,36 +181,25 @@ std::pair<bool, int> Digger::is_done(const population_t & population) const {
 			return {true, i};
 	}
 
-	return {false, 0};
 }
 
-void Digger::print(const Chromosome & chromosome) const {
-
+void Digger::print(const Chromosome &chromosome) const {
 	auto path = chromosome.get_path();
 	std::string down = "dig down";
 	std::string right = "dig right";
 	std::string left = "dig left";
-	std::string direction = "";
+	std::string direction;
 
 	for (auto &element : path) {
 		if (element.first == Dig::DIG_LEFT)
 			direction = left;
 		else
 			direction = right;
+
 		std::cout
 			<< down << " " << direction << " "
 			<< element.second << " " << std::endl;
 	}
 
-	std::cout << "Dig down" << std::endl;
-
-
-
+	std::cout << down << std::endl;
 }
-
-
-
-
-
-
-

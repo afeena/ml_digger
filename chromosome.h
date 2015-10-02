@@ -14,12 +14,12 @@ public:
 	const path_t& get_path() const;
 
 	static chromosome_pair_t make_crossover(const chromosome_pair_t &parents);
-	static Chromosome make_random(int bound, int path_length);
+	static Chromosome make_random(int path_length, int path_width);
 
 private:
 	int score;
+	
+	int path_width;
 	path_t path;
-
-	static std::mt19937 random_gen;
 };
 
