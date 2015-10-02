@@ -1,5 +1,7 @@
 #include "level.h"
 
+#include "config.h"
+
 Level::Level(std::string gate, std::string room) {
 	for (int i = 0; i < gate.length(); i++) {
 		switch (gate[i]) {
@@ -13,7 +15,7 @@ Level::Level(std::string gate, std::string room) {
 		}
 	}
 	if (room == "") {
-		for (int i = 0; i < 17; i++)
+		for (int i = 0; i < Config::PATH_LEN; i++)
 			this->room.push_back(EMPTY);
 	}
 	for (int i = 0; i < room.length(); i++) {

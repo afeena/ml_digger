@@ -48,7 +48,7 @@ chromosome_pair_t Chromosome::make_crossover(const chromosome_pair_t &parents) {
 		std::swap(childs.first.path[i], childs.second.path[i]);
 	}
 
-	childs.first.score=0;
+	childs.first.score = 0;
 	childs.second.score = 0;
 
 	return childs;
