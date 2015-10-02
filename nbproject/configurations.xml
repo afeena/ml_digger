@@ -5,6 +5,7 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>chromosome.h</itemPath>
+      <itemPath>config.h</itemPath>
       <itemPath>level.h</itemPath>
       <itemPath>ml_digger.h</itemPath>
       <itemPath>types.h</itemPath>
@@ -48,6 +49,8 @@
       </item>
       <item path="chromosome.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="config.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="level.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="level.h" ex="false" tool="3" flavor2="0">
@@ -72,9 +75,9 @@
           <developmentMode>5</developmentMode>
         </cTool>
         <ccTool>
-          <developmentMode>5</developmentMode>
+          <developmentMode>0</developmentMode>
           <standard>8</standard>
-          <commandLine>-march=native</commandLine>
+          <commandLine>-march=native -Ofast</commandLine>
         </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
@@ -86,6 +89,8 @@
       <item path="chromosome.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="chromosome.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="config.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="level.cpp" ex="false" tool="1" flavor2="0">
       </item>
