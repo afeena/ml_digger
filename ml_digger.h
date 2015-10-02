@@ -22,10 +22,11 @@ private:
 	std::string map_filename;
 	std::vector<Level> map;
 	static std::mt19937 random_gen;
-
+	static int top_score;
+	static int iterate_count;
 	void read_map();
 	void find_path_score(population_t &population);
-	bool is_done(population_t population);
+	std::pair<bool,Chromosome> is_done(population_t population);
 	
 	population_t generate_random_population(int size);
 	population_t generate_next_population(population_t population);

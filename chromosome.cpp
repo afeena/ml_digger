@@ -49,7 +49,8 @@ chromosome_pair_t Chromosome::make_cross(chromosome_pair_t parents) {
 	for (int i = cross_points.first; i <= cross_points.second; i++) {
 		std::swap(parents.first.path[i], parents.second.path[i]);
 	}
-
+	parents.first.score=0;
+	parents.second.score = 0;
 	return parents;
 }
 
@@ -58,14 +59,23 @@ void Chromosome::mutate() {
 	std::uniform_int_distribution<int> step_count_dist(0, 15);
 	std::uniform_int_distribution<int> direction_dist(0, 1);
 	
-	int mutate_point = mutation_dist(random_gen);
-	int step_count = step_count_dist(random_gen);
-	int direction = direction_dist(random_gen);
+	int mutate_point_one = mutation_dist(random_gen);
+	int step_count_one = step_count_dist(random_gen);
+	int direction_one = direction_dist(random_gen);
+	
+	int mutate_point_two = mutation_dist(random_gen);
+	int step_count_two = step_count_dist(random_gen);
+	int direction_two = direction_dist(random_gen);
 
-	if (direction)
-		this->path[mutate_point] = {DIG_RIGHT, step_count};
+	if (direction_one)
+		this->path[mutate_point_one] = {DIG_RIGHT, step_count_one};
 	else
-		this->path[mutate_point] = {DIG_LEFT, step_count};
+		this->path[mutate_point_one] = {DIG_LEFT, step_count_one};
+	
+	if (direction_two)
+		this->path[mutate_point_two] = {DIG_RIGHT, step_count_two};
+	else
+		this->path[mutate_point_two] = {DIG_LEFT, step_count_two};
 
 }
 

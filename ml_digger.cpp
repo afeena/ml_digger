@@ -9,8 +9,11 @@
 #include <set>
 
 std::mt19937 Digger::random_gen = std::mt19937(time(nullptr));
+int Digger::top_score = 0;
+int Digger::iterate_count = 0;
 
 Digger::Digger(std::string filename) : map_bound_x(0), levels_count(0) {
+
 	this->map_filename = filename;
 	this->read_map();
 }
@@ -33,11 +36,16 @@ void Digger::read_map() {
 path_t Digger::find_path() {
 	population_t population = this->generate_random_population(15);
 	this->find_path_score(population);
-	while (!this->is_done(population)) {
+	while (!this->is_done(population).first) {
+
 		population = generate_next_population(population);
+
 		this->find_path_score(population);
+		//print(population);
+
 
 	}
+	
 	print(population);
 }
 
@@ -52,6 +60,7 @@ population_t Digger::generate_random_population(int size) {
 }
 
 void Digger::find_path_score(population_t &population) {
+	iterate_count++;
 	for (int i = 0; i < population.size(); i++) {
 		int current_position = this->map[0].get_gates()[0];
 		path_t path = population[i].get_path();
@@ -69,7 +78,11 @@ void Digger::find_path_score(population_t &population) {
 			int possible_steps = this->map[j].countup_possible_steps(current_position, direction, step_count);
 
 			score += 15 - possible_steps;
-
+			if (score > top_score) {
+				std::cout << score << std::endl;
+				top_score = score;
+				iterate_count = 0;
+			}
 			if (possible_steps != step_count)
 				break;
 
@@ -125,7 +138,8 @@ std::vector<chromosome_pair_t> Digger::round_wheel_selection(population_t popula
 		distribution(intervals.begin(), intervals.end(), weights.begin());
 
 	std::vector<chromosome_pair_t> selected_parents;
-	for (int i = 0; i < std::ceil(population.size() / 2); i++) {
+	int finish = std::ceil(population.size() / 2) + 1;
+	for (int i = 0; i < finish; i++) {
 		chromosome_pair_t parents;
 		double dice;
 
@@ -153,36 +167,68 @@ std::vector<chromosome_pair_t> Digger::round_wheel_selection(population_t popula
 }
 
 population_t Digger::generate_next_population(population_t population) {
-	
+
 	std::vector<chromosome_pair_t> parents_pool = round_wheel_selection(population);
+	//	for (int i = 0; i < parents_pool.size(); i++) {
+	//		path_t path = parents_pool[i].first.get_path();
+	//		for (int j = 0; j < path.size(); j++) {
+	//			std::cout << path[j].first << " ";
+	//			std::cout << path[j].second << " ";
+	//		}
+	//		std::cout << std::endl;
+	//
+	//		std::cout << parents_pool[i].first.get_score();
+	//		std::cout << std::endl;
+	//		
+	//		path = parents_pool[i].second.get_path();
+	//		for (int j = 0; j < path.size(); j++) {
+	//			std::cout << path[j].first << " ";
+	//			std::cout << path[j].second << " ";
+	//		}
+	//		std::cout << std::endl;
+	//
+	//		std::cout << parents_pool[i].second.get_score();
+	//		std::cout << std::endl;
+	//
+	//		
+	//
+	//
+	//	}
 	population_t population_children;
 	for (int i = 0; i < parents_pool.size(); i++) {
 		chromosome_pair_t children = Chromosome::make_cross(parents_pool[i]);
 		population_children.push_back(children.first);
 		population_children.push_back(children.second);
-	}
 
-	for (int i = 0; i < population_children.size(); i++) {
-		int rand = random_gen() % 100;
-		if (rand < 2) {
-			population_children[i].mutate();
+	}
+	//print(population_children);
+	if (iterate_count > 500) {
+		
+		for (int i = 0; i < population_children.size(); i++) {
+			int rand = random_gen() % 100;
+			if (rand < 3) {
+				population_children[i].mutate();
+			}
 		}
+		
+		
 	}
 
 	population_t new_population(population_children.begin(), population_children.begin() + 15);
 	return new_population;
 }
 
-bool Digger::is_done(population_t population) {
+std::pair<bool,Chromosome> Digger::is_done(population_t population) {
 	bool done = false;
-	int done_score = 16;
+	int done_score = 15;
+	int done_ind = 0;
 
 	for (int i = 0; i < population.size(); i++) {
-		int current_score = std::floor(population[i].get_score() / 100);
+		int current_score = std::floor(static_cast<double> (population[i].get_score()) / 100);
 		if (current_score == done_score)
 			done = true;
 	}
-	return done;
+	return {done, population[done_ind]};
 }
 
 void Digger::print(population_t population) {

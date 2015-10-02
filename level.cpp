@@ -17,6 +17,10 @@ Level::Level(std::string gate, std::string room) {
 
 		}
 	}
+	if (room == "") {
+		for (int i = 0; i < 17; i++)
+			this->room.push_back(EMPTY);
+	}
 	//TODO empty room
 	for (int i = 0; i < room.length(); i++) {
 		switch (room[i]) {
@@ -32,25 +36,25 @@ Level::Level(std::string gate, std::string room) {
 }
 
 int Level::countup_possible_steps(int start, int direction, int step_count) {
-	int count=0;	
-	int finish = start+step_count*direction;
-	
-	for(int i = start; i != finish; i+=direction){
-		if(this->room[i]==WALL)
-			break;;
+	int count = 0;
+	int finish = start + step_count*direction;
+
+	for (int i = start; i != finish; i += direction) {
+		if (this->room[i] == WALL)
+			break;
+		;
 		count++;
 	}
 	return count;
 }
 
 bool Level::is_can_down(int position) {
-	for(int i = 0; i < this->gates.size(); i++){
-		if(this->gates[i] == position)
+	for (int i = 0; i < this->gates.size(); i++) {
+		if (this->gates[i] == position)
 			return true;
 	}
 	return false;
 }
-
 
 std::vector<uint8_t> Level::get_gates() {
 	return this->gates;
