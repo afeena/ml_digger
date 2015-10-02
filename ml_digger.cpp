@@ -38,13 +38,16 @@ void Digger::read_map() {
 void Digger::find_path() {
 	population_t population = this->generate_random_population(Config::POPULATION_SIZE);
 	this->calculate_path_score(population);
+	std::pair<bool, int> done = {false, 0};
 
-	while (!this->is_done(population).first) {
+	while (!done.first) {
 		population = generate_next_population(population);
 		this->calculate_path_score(population);
+		done = this->is_done(population);
+
 	}
 
-	print(population);
+	print(population[done.second]);
 	//	TODO: return path
 }
 
@@ -108,7 +111,7 @@ std::vector<chromosome_pair_t> Digger::round_wheel_selection(const population_t 
 
 	double last = 0;
 	for (int i = 0; i < population.size(); i++) {
-		double current = static_cast<double>(population[i].get_score()) / score_sum;
+		double current = static_cast<double> (population[i].get_score()) / score_sum;
 		last += current;
 
 		intervals.insert(last);
@@ -142,8 +145,9 @@ std::vector<chromosome_pair_t> Digger::round_wheel_selection(const population_t 
 	return selected_parents;
 }
 
-population_t Digger::generate_next_population(const population_t &population) const {
+population_t Digger::generate_next_population(const population_t & population) const {
 	std::vector<chromosome_pair_t> parents = round_wheel_selection(population);
+	//std::vector<chromosome_pair_t> parents = tournament_selection(population);
 	population_t population_children;
 
 	for (int i = 0; i < parents.size(); i++) {
@@ -152,7 +156,7 @@ population_t Digger::generate_next_population(const population_t &population) co
 		population_children.push_back(children.second);
 	}
 
-	if (iterate_count > 100) {
+	if (iterate_count > 500) {
 		for (int i = 0; i < population_children.size(); i++) {
 			int rand = random_gen() % 100;
 
@@ -161,13 +165,16 @@ population_t Digger::generate_next_population(const population_t &population) co
 
 			population_children[i].mutate();
 		}
+		
+		//top_score = 0;
+		iterate_count = 0;
 	}
 
 	return {population_children.begin(), population_children.begin() + Config::POPULATION_SIZE};
 }
 
-std::pair<bool, int> Digger::is_done(const population_t &population) const {
-	int done_score = Config::LEVEL_COUNTS;
+std::pair<bool, int> Digger::is_done(const population_t & population) const {
+	int done_score = 15;
 	int done_ind = 0;
 
 	for (int i = 0; i < population.size(); i++) {
@@ -179,20 +186,28 @@ std::pair<bool, int> Digger::is_done(const population_t &population) const {
 	return {false, 0};
 }
 
-void Digger::print(const population_t &population) const {
-	for (int i = 0; i < population.size(); i++) {
-		auto path = population[i].get_path();
-		int score = population[i].get_score();
+void Digger::print(const Chromosome & chromosome) const {
 
-		for (auto &element : path) {
-			std::cout
-				<< element.first << " "
-				<< element.second << " ";
-		}
+	auto path = chromosome.get_path();
+	std::string down = "dig down";
+	std::string right = "dig right";
+	std::string left = "dig left";
+	std::string direction = "";
 
-		std::cout << std::endl;
-		std::cout << "lvl: " << (score >> 16) << ", step: " << (score & 0xFFFF) << std::endl;
+	for (auto &element : path) {
+		if (element.first == Dig::DIG_LEFT)
+			direction = left;
+		else
+			direction = right;
+		std::cout
+			<< down << " " << direction << " "
+			<< element.second << " " << std::endl;
 	}
+
+	std::cout << "Dig down" << std::endl;
+
+
+
 }
 
 

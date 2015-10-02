@@ -56,7 +56,7 @@ chromosome_pair_t Chromosome::make_crossover(const chromosome_pair_t &parents) {
 
 void Chromosome::mutate() {
 	std::uniform_int_distribution<int> mutation_dist(0, this->path.size() - 1);
-	std::uniform_int_distribution<int> step_count_dist(0, Config::LEVEL_COUNTS);
+	std::uniform_int_distribution<int> step_count_dist(0, Config::PATH_LEN);
 	std::uniform_int_distribution<int> direction_dist(0, 1);
 
 	for (int i = 0; i < Config::MUTATE_SIZE; i++) {

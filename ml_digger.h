@@ -13,7 +13,7 @@ class Digger {
 public:
 	Digger(std::string filename);
 	void find_path();
-	void print(const population_t &population) const;
+	void print(const Chromosome &chromosome) const;
 
 private:
 	int map_bound_x;
@@ -31,4 +31,5 @@ private:
 	population_t generate_random_population(int size);
 	population_t generate_next_population(const population_t &population) const;
 	std::vector<chromosome_pair_t> round_wheel_selection(const population_t &population) const;
+	std::vector<chromosome_pair_t> tournament_selection(const population_t &population) const;
 };

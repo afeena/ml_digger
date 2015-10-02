@@ -5,8 +5,8 @@
 #include <string>
 
 const int Config::POPULATION_SIZE = 15;
-const int Config::LEVEL_COUNTS = 16;
-const int Config::MUTATE_SIZE = 2;
+const int Config::PATH_LEN = 16;
+const int Config::MUTATE_SIZE = 1;
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
