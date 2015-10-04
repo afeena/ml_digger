@@ -1,15 +1,12 @@
 #pragma once
 
+#include <random>
 #include <vector>
 
 class Chromosome;
 
-enum Dig : int {
-	DIG_LEFT = -1,
-	DIG_DOWN = 0,
-	DIG_RIGHT = 1,
-};
+typedef std::mt19937 random_t;
 
 typedef std::vector<Chromosome> population_t;
 typedef std::pair<Chromosome, Chromosome> chromosome_pair_t;
-typedef std::vector<std::pair<Dig, int>> path_t;
+typedef std::vector<int> path_t;

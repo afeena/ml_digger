@@ -7,12 +7,12 @@
 #include <random>
 
 const int Config::POPULATION_SIZE = 16;
-const int Config::MUTATE_SIZE = 3;
-const int Config::MUTATE_RATE = 4;
-const int Config::ITERS_FOR_MUTATION = 1000;
-const int Config::ROOM_BORDER_SIZE = 3;
+const int Config::MUTATE_SIZE = 2;
+const int Config::MUTATE_RATE = 5;
+const int Config::ITERS_FOR_MUTATION = 2000;
+const int Config::ROOM_BORDER_SIZE = 2;
 
-std::mt19937 random(time(nullptr));
+random_t random(time(nullptr));
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {

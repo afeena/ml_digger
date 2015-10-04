@@ -2,6 +2,7 @@
 
 #include "level.h"
 #include "types.h"
+#include "chromosome.h"
 
 #include <string>
 #include <random>
@@ -13,7 +14,7 @@ class Digger {
 public:
 	Digger(std::string filename);
 	void find_path();
-	void print(const Chromosome &chromosome) const;
+	void print(std::vector<int> path) const;
 
 private:
 	std::string map_filename;
@@ -28,6 +29,7 @@ private:
 
 	population_t generate_random_population();
 	population_t generate_next_population(const population_t &population);
+	std::vector<int> restore_path(Chromosome chromosome);
 	std::vector<chromosome_pair_t> round_wheel_selection(const population_t &population) const;
 	std::vector<chromosome_pair_t> tournament_selection(const population_t &population) const;
 };

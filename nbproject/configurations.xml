@@ -42,7 +42,7 @@
       <compileType>
         <ccTool>
           <standard>8</standard>
-          <commandLine>-O0</commandLine>
+          <commandLine>-Og</commandLine>
         </ccTool>
       </compileType>
       <item path="chromosome.cpp" ex="false" tool="1" flavor2="0">
