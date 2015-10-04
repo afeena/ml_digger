@@ -14,7 +14,7 @@ class Digger {
 public:
 	Digger(std::string filename);
 	void find_path();
-	void print(std::vector<int> path) const;
+	void print(const path_t &path) const;
 
 private:
 	std::string map_filename;
@@ -22,6 +22,7 @@ private:
 	
 	int top_score;
 	int iterate_count;
+	int iterate_total;
 
 	void read_map();
 	void calculate_path_score(population_t &population);
@@ -29,7 +30,6 @@ private:
 
 	population_t generate_random_population();
 	population_t generate_next_population(const population_t &population);
-	std::vector<int> restore_path(Chromosome chromosome);
+	std::vector<int> restore_path(const Chromosome &chromosome) const;
 	std::vector<chromosome_pair_t> round_wheel_selection(const population_t &population) const;
-	std::vector<chromosome_pair_t> tournament_selection(const population_t &population) const;
 };

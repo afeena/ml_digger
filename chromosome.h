@@ -13,7 +13,6 @@ public:
 	std::vector<int> get_gates() const;
 	const path_t& get_path() const;
 	
-
 	static chromosome_pair_t make_crossover(const chromosome_pair_t &parents);
 	static Chromosome make_random(int path_length, int path_width);
 

@@ -25,7 +25,7 @@ chromosome_pair_t Chromosome::make_crossover(const chromosome_pair_t &parents) {
 	chromosome_pair_t childs = parents;
 
 	assert(parents.first.path_len == parents.second.path_len);
-	
+
 	std::pair<int, int> cross_points;
 	std::uniform_int_distribution<int> cut_point_dist(0, parents.first.path_len - 1);
 
@@ -43,7 +43,7 @@ chromosome_pair_t Chromosome::make_crossover(const chromosome_pair_t &parents) {
 
 	childs.first.score = 0;
 	childs.second.score = 0;
-	
+
 	childs.first.gates.clear();
 	childs.second.gates.clear();
 
@@ -51,23 +51,13 @@ chromosome_pair_t Chromosome::make_crossover(const chromosome_pair_t &parents) {
 }
 
 void Chromosome::mutate() {
-//	TODO:
 	std::uniform_int_distribution<int> mutation_dist(0, this->path_len);
 	std::uniform_int_distribution<int> position_dist(0, this->path_width);
-	//std::uniform_int_distribution<int> step_count_dist(0, this->path_width);
-	//std::uniform_int_distribution<int> direction_dist(0, 1);
 
 	for (int i = 0; i < Config::MUTATE_SIZE; i++) {
 		int mutate_point = mutation_dist(random);
 		int new_position = position_dist(random);
 		this->path[mutate_point] = new_position;
-//		int step_count = step_count_dist(random);
-//		int direction = direction_dist(random);
-
-//		if (direction > 0)
-//			this->path[mutate_point] = {DIG_RIGHT, step_count};
-//		else
-//			this->path[mutate_point] = {DIG_LEFT, step_count};
 	}
 }
 
@@ -90,10 +80,3 @@ void Chromosome::push_gates(int gate_position) {
 std::vector<int> Chromosome::get_gates() const {
 	return this->gates;
 }
-
-
-
-
-
-
-

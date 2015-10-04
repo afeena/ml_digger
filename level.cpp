@@ -32,28 +32,6 @@ Level::Level(std::string gate, std::string room) {
 	}
 }
 
-int Level::countup_possible_steps(int start, int direction, int step_count) const {
-	int count = 0;
-	int finish = start + step_count * direction;
-
-	for (int i = start; i != finish; i += direction) {
-		if (this->room[i] == WALL)
-			break;
-
-		count++;
-	}
-
-	return count;
-}
-
-bool Level::is_can_down(int position) const {
-	for (int i = 0; i < this->gates.size(); i++) {
-		if (this->gates[i] == position)
-			return true;
-	}
-	return false;
-}
-
 const std::vector<uint8_t>& Level::get_gates() const {
 	return this->gates;
 }
@@ -61,7 +39,3 @@ const std::vector<uint8_t>& Level::get_gates() const {
 const std::vector<uint8_t>& Level::get_room() const {
 	return this->room;
 }
-
-
-
-

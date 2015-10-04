@@ -6,11 +6,10 @@
 #include <string>
 #include <random>
 
-const int Config::POPULATION_SIZE = 16;
+const int Config::POPULATION_SIZE = 50;
 const int Config::MUTATE_SIZE = 2;
-const int Config::MUTATE_RATE = 5;
-const int Config::ITERS_FOR_MUTATION = 2000;
-const int Config::ROOM_BORDER_SIZE = 2;
+const int Config::MUTATE_RATE = 3;
+const int Config::ITERS_FOR_MUTATION = 10;
 
 random_t random(time(nullptr));
 

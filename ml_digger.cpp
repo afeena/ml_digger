@@ -11,7 +11,7 @@
 
 extern random_t random;
 
-Digger::Digger(std::string filename) : map_filename(filename), top_score(0), iterate_count(0) {
+Digger::Digger(std::string filename) : map_filename(filename), top_score(0), iterate_count(0), iterate_total(0) {
 	this->read_map();
 }
 
@@ -44,10 +44,10 @@ void Digger::find_path() {
 		done = this->is_done(population);
 
 		this->iterate_count++;
+		this->iterate_total++;
 	}
 	std::vector<int> path = restore_path(population[done.second]);
 	print(path);
-	//	TODO: return path
 }
 
 population_t Digger::generate_random_population() {
@@ -56,7 +56,7 @@ population_t Digger::generate_random_population() {
 	population.reserve(Config::POPULATION_SIZE);
 
 	int path_len = this->map.size();
-	int path_width = this->map.front().get_room().size() - Config::ROOM_BORDER_SIZE;
+	int path_width = this->map.front().get_room().size();
 
 	for (int i = 0; i < Config::POPULATION_SIZE; i++) {
 		Chromosome chromosome = Chromosome::make_random(path_len, path_width);
@@ -67,7 +67,7 @@ population_t Digger::generate_random_population() {
 }
 
 void Digger::calculate_path_score(population_t &population) {
-	int path_width = this->map.front().get_room().size() - Config::ROOM_BORDER_SIZE;
+	int path_width = this->map.front().get_room().size();
 
 	for (auto &chromosome : population) {
 		auto path = chromosome.get_path();
@@ -76,26 +76,25 @@ void Digger::calculate_path_score(population_t &population) {
 		assert(path.size() == this->map.size());
 
 		for (int i = 1; i < path.size(); i++) {
-			auto level_current = this->map[i];
-			auto level_prev = this->map[i - 1];
+			Level &level_current = this->map[i];
+			Level &level_prev = this->map[i - 1];
 
 			auto room_current = level_current.get_room();
 			auto room_prev = level_prev.get_room();
-
-			auto point_current = path[i];
-			auto point_prev = path[i - 1];
-
 			auto gates = level_current.get_gates();
+
+			int point_current = path[i];
+			int point_prev = path[i - 1];
 
 			bool available = false;
 			bool gate_set = false;
 
-			for (auto gate : gates) {
-				auto step_current = point_current > gate ? -1 : 1;
-				auto step_prev = point_prev > gate ? -1 : 1;
+			for (int gate : gates) {
+				int step_current = point_current > gate ? -1 : 1;
+				int step_prev = point_prev > gate ? -1 : 1;
 
-				auto current = point_current;
-				auto prev = point_prev;
+				int current = point_current;
+				int prev = point_prev;
 
 				while (true) {
 					int steps = 0;
@@ -125,9 +124,9 @@ void Digger::calculate_path_score(population_t &population) {
 
 			if (available) {
 				score++;
-				if(!gate_set){
+				if (!gate_set) {
 					chromosome.push_gates(choosed_gate);
-					gate_set=true;
+					gate_set = true;
 				}
 			}
 		}
@@ -135,14 +134,11 @@ void Digger::calculate_path_score(population_t &population) {
 		if (score > this->top_score) {
 			std::cout << "top: " << score << std::endl;
 			this->top_score = score;
-			this->iterate_count++;
+			this->iterate_count = 0;
 		}
 
 		chromosome.set_score(score);
-
 	}
-
-
 }
 
 std::vector<chromosome_pair_t> Digger::round_wheel_selection(const population_t &population) const {
@@ -200,8 +196,7 @@ population_t Digger::generate_next_population(const population_t &population) {
 		population_children.push_back(children.second);
 	}
 
-
-	if (iterate_count > 10) {
+	if (this->iterate_count > Config::ITERS_FOR_MUTATION) {
 		for (int i = 0; i < population_children.size(); i++) {
 			int rand = random() % 100;
 
@@ -213,10 +208,8 @@ population_t Digger::generate_next_population(const population_t &population) {
 		}
 		iterate_count = 0;
 	}
-	return
-	{
-		population_children.begin(), population_children.begin() + Config::POPULATION_SIZE
-	};
+	
+	return {population_children.begin(), population_children.begin() + Config::POPULATION_SIZE};
 }
 
 std::pair<bool, int> Digger::is_done(const population_t &population) const {
@@ -232,14 +225,10 @@ std::pair<bool, int> Digger::is_done(const population_t &population) const {
 		}
 	}
 
-	return
-	{
-		false, 0
-	};
+	return {false, 0};
 }
 
-std::vector<int> Digger::restore_path(Chromosome chromosome) {
-	//std::vector<int> positions = chromosome.get_path();
+std::vector<int> Digger::restore_path(const Chromosome &chromosome) const {
 	std::vector<int> gates = chromosome.get_gates();
 
 	std::vector<int> path;
@@ -253,11 +242,8 @@ std::vector<int> Digger::restore_path(Chromosome chromosome) {
 	return path;
 }
 
-void Digger::print(std::vector<int> path) const {
-
-	std::cout << "finish iters" << this->iterate_count << std::endl;
-
-	//auto &path = chromosome.get_path();
+void Digger::print(const path_t &path) const {
+	std::cout << "finish iters: " << this->iterate_total << std::endl;
 
 	for (auto position : path) {
 		std::cout << position << std::endl;
