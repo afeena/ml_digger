@@ -1,7 +1,5 @@
 #include "level.h"
 
-#include "config.h"
-
 Level::Level(std::string gate, std::string room) {
 	for (int i = 0; i < gate.length(); i++) {
 		switch (gate[i]) {

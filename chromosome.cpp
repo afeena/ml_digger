@@ -50,11 +50,11 @@ chromosome_pair_t Chromosome::make_crossover(const chromosome_pair_t &parents) {
 	return childs;
 }
 
-void Chromosome::mutate() {
+void Chromosome::mutate(int mutate_points) {
 	std::uniform_int_distribution<int> mutation_dist(0, this->path_len);
 	std::uniform_int_distribution<int> position_dist(0, this->path_width);
 
-	for (int i = 0; i < Config::MUTATE_SIZE; i++) {
+	for (int i = 0; i < mutate_points; i++) {
 		int mutate_point = mutation_dist(random);
 		int new_position = position_dist(random);
 		this->path[mutate_point] = new_position;

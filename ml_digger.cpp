@@ -1,6 +1,5 @@
 #include "ml_digger.h"
 
-#include "config.h"
 #include "chromosome.h"
 
 #include <algorithm>
@@ -8,10 +7,15 @@
 #include <fstream>
 #include <iostream>
 #include <set>
+#include <ctime>
 
-extern random_t random;
 
-Digger::Digger(std::string filename) : map_filename(filename), top_score(0), iterate_count(0), iterate_total(0) {
+random_t random(time(nullptr));
+
+Digger::Digger(std::string filename, int population_size, int mutate_points, int mutate_rate, int iters_before_mutation) :
+map_filename(filename), population_size(population_size), mutate_points(mutate_points), mutate_rate(mutate_rate), iters_before_mutation(iters_before_mutation),
+top_score(0), iterate_count(0), iterate_total(0) {
+
 	this->read_map();
 }
 
@@ -47,18 +51,17 @@ void Digger::find_path() {
 		this->iterate_total++;
 	}
 	std::vector<int> path = restore_path(population[done.second]);
-	print(path);
 }
 
 population_t Digger::generate_random_population() {
 	population_t population;
 
-	population.reserve(Config::POPULATION_SIZE);
+	population.reserve(this->population_size);
 
 	int path_len = this->map.size();
 	int path_width = this->map.front().get_room().size();
 
-	for (int i = 0; i < Config::POPULATION_SIZE; i++) {
+	for (int i = 0; i < this->population_size; i++) {
 		Chromosome chromosome = Chromosome::make_random(path_len, path_width);
 		population.push_back(chromosome);
 	}
@@ -196,20 +199,20 @@ population_t Digger::generate_next_population(const population_t &population) {
 		population_children.push_back(children.second);
 	}
 
-	if (this->iterate_count > Config::ITERS_FOR_MUTATION) {
+	if (this->iterate_count > this->iters_before_mutation) {
 		for (int i = 0; i < population_children.size(); i++) {
 			int rand = random() % 100;
 
-			if (rand >= Config::MUTATE_RATE)
+			if (rand >= this->mutate_rate)
 				continue;
 
-			population_children[i].mutate();
+			population_children[i].mutate(this->mutate_points);
 
 		}
 		iterate_count = 0;
 	}
-	
-	return {population_children.begin(), population_children.begin() + Config::POPULATION_SIZE};
+
+	return {population_children.begin(), population_children.begin() + this->population_size};
 }
 
 std::pair<bool, int> Digger::is_done(const population_t &population) const {
@@ -225,7 +228,7 @@ std::pair<bool, int> Digger::is_done(const population_t &population) const {
 		}
 	}
 
-	return {false, 0};
+	return { false, 0 };
 }
 
 std::vector<int> Digger::restore_path(const Chromosome &chromosome) const {
@@ -240,32 +243,4 @@ std::vector<int> Digger::restore_path(const Chromosome &chromosome) const {
 	}
 
 	return path;
-}
-
-void Digger::print(const path_t &path) const {
-	std::cout << "finish iters: " << this->iterate_total << std::endl;
-
-	for (auto position : path) {
-		std::cout << position << std::endl;
-
-	}
-
-	//	auto path = chromosome.get_path();
-	//	std::string down = "dig down";
-	//	std::string right = "dig right";
-	//	std::string left = "dig left";
-	//	std::string direction;
-	//
-	//	for (auto &element : path) {
-	//		if (element.first == Dig::DIG_LEFT)
-	//			direction = left;
-	//		else
-	//			direction = right;
-	//
-	//		std::cout
-	//			<< down << " " << direction << " "
-	//			<< element.second << " " << std::endl;
-	//	}
-	//
-	//	std::cout << down << std::endl;
 }

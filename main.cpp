@@ -1,17 +1,9 @@
-#include "config.h"
 #include "ml_digger.h"
 
 #include <ctime>
 #include <iostream>
 #include <string>
 #include <random>
-
-const int Config::POPULATION_SIZE = 50;
-const int Config::MUTATE_SIZE = 2;
-const int Config::MUTATE_RATE = 3;
-const int Config::ITERS_FOR_MUTATION = 10;
-
-random_t random(time(nullptr));
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
@@ -20,6 +12,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	std::string userInput = argv[1];
-	Digger digger(userInput);
+	Digger digger(userInput, 50, 2, 3, 10);
 	digger.find_path();
 }
